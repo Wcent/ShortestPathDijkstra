@@ -52,7 +52,7 @@ int main()
 // ~ graphy: G = (V, E), V：顶点集, E: 边集
 // ~ e ∈ E & e > 0表示顶点邻接，权值为e, e = -1表示两顶点不邻接
 // ~
-int dijkstra(int (*graphy)[8], int vertexs, int s_v, int e_v)
+int dijkstra(int (*graphy)[8], int vertexs, int s_v, int e_v, int *path)
 {
 	int *dist; //起点到各终点的最短路径
 	int *vis;  //已访问过的顶点
