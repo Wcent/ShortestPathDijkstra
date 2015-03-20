@@ -6,7 +6,7 @@
 
 using namespace std;
 
-int dijkstra(int (*graphy)[8], int vertexs, int s_v, int e_v);
+int dijkstra(int (*graphy)[8], int vertexs, int s_v, int e_v, int *path);
 
 int main()
 {
@@ -25,38 +25,53 @@ int main()
 	g[4][5] = 1, g[5][4] = 1;
 	g[5][7] = 2, g[7][5] = 2;
 
+        int p[8];
 	int s = 2;
 	int e;
+	int path;
 	for(e=1; e<8; e++)
-		cout<<"shortest path, from "<<s<<" to "<<e<<" is: "<<dijkstra(g, 8, s, e)<<endl;
+	{
+		path = dijkstra(g, 8, s, e, p);
+		if(path != -1)
+		{
+			cout<<"shortest path, from "<<s<<" to "<<e<<" is: "<<path<<endl;
+			cout<<"path: ";
+			for(int i=e; p[i] != -1; i=p[i])
+				cout<<i<<"<--";
+			cout<<s<<endl<<endl;
+		}
+		else
+			cout<<"shortest path, from "<<s<<" to "<<e<<" is not exist."<<endl<<endl;
+	}
 
 	return 0;
 }
 
 
-// ×î¶ÌÂ·¾¶£º~ Dijkstra, dist[j] = min{dist[j], dist[i]+graphy[i][j]}
-// ~ graphy: G = (V, E), V£º¶¥µã¼¯, E: ±ß¼¯
-// ~ e ¡Ê E & e > 0±íÊ¾¶¥µãÁÚ½Ó£¬È¨ÖµÎªe, e = -1±íÊ¾Á½¶¥µã²»ÁÚ½Ó
+// æœ€çŸ­è·¯å¾„ï¼š~ Dijkstra, dist[j] = min{dist[j], dist[i]+graphy[i][j]}
+// ~ graphy: G = (V, E), Vï¼šé¡¶ç‚¹é›†, E: è¾¹é›†
+// ~ e âˆˆ E & e > 0è¡¨ç¤ºé¡¶ç‚¹é‚»æ¥ï¼Œæƒå€¼ä¸ºe, e = -1è¡¨ç¤ºä¸¤é¡¶ç‚¹ä¸é‚»æ¥
 // ~
 int dijkstra(int (*graphy)[8], int vertexs, int s_v, int e_v)
 {
-	int *dist; //Æğµãµ½¸÷ÖÕµãµÄ×î¶ÌÂ·¾¶
-	int *vis;  //ÒÑ·ÃÎÊ¹ıµÄ¶¥µã
+	int *dist; //èµ·ç‚¹åˆ°å„ç»ˆç‚¹çš„æœ€çŸ­è·¯å¾„
+	int *vis;  //å·²è®¿é—®è¿‡çš„é¡¶ç‚¹
 	int num;
 	int min, k;
 	
 	dist = new int[vertexs];
 	vis = new int [vertexs];
 
-	//³õÊ¼»¯£¬-1´ú±ímax_value
+	//åˆå§‹åŒ–ï¼Œ-1ä»£è¡¨max_value
 	memset(dist, -1, sizeof(int)*vertexs);
-	//Æğµãµ½ÖÕµã×î¶Ì¾àÀëÎª0
+	//èµ·ç‚¹åˆ°ç»ˆç‚¹æœ€çŸ­è·ç¦»ä¸º0
 	dist[s_v] = 0;
 	memset(vis, 0, sizeof(int)*vertexs);
+	memset(path, -1, sizeof(int)*vertexs);
 	num = vertexs-1;
 	while(num)
 	{
-		//Ì°ĞÄ²ßÂÔ£º´Ó·ÃÎÊ¹ıµÄ¶¥µãÖĞ£¬ÕÒ³ö×î¶ÌÂ·¾¶£¬´ÓÒÑÖªµÄ×î¶ÌÂ·¾¶¿ªÊ¼ÑÓÉì
+		//è´ªå¿ƒç­–ç•¥ï¼šä»è®¿é—®è¿‡çš„é¡¶ç‚¹ä¸­ï¼Œæ‰¾å‡ºæœ€çŸ­è·¯å¾„ï¼Œä»å·²çŸ¥çš„æœ€çŸ­è·¯å¾„å¼€å§‹å»¶ä¼¸
 		min = -1;
 		k = -1;
 		for(int i=0; i<vertexs; i++)
@@ -69,20 +84,23 @@ int dijkstra(int (*graphy)[8], int vertexs, int s_v, int e_v)
 			}
 		}
 
-		//ÖÕµã×î¶ÌÂ·¾¶ÒÑÕÒµ½»òËùÓĞ¶¥µã×î¶ÌÂ·¾¶¶¼ÒÑÕÒµ½
+		//ç»ˆç‚¹æœ€çŸ­è·¯å¾„å·²æ‰¾åˆ°æˆ–æ‰€æœ‰é¡¶ç‚¹æœ€çŸ­è·¯å¾„éƒ½å·²æ‰¾åˆ°
 		if(e_v == k || min == -1)
 			break;
-		//±ê¼Ç·ÃÎÊ¹ıµÄ¶¥µã
+		//æ ‡è®°è®¿é—®è¿‡çš„é¡¶ç‚¹
 		vis[k] = 1;
 		num--;
 		
 		//dist[j] = min{d[j], dist[i]+graphy[i][j]}
-		//¸üĞÂÎ´·ÃÎÊ¹ıÁÚ½Ó¶¥µãµÄ×î¶ÌÂ·¾¶
+		//æ›´æ–°æœªè®¿é—®è¿‡é‚»æ¥é¡¶ç‚¹çš„æœ€çŸ­è·¯å¾„
 		for(i=0; i<vertexs; i++)
 		{
 			if(vis[i] != 1 && graphy[k][i] != -1 &&
 			   (dist[i] != -1 && dist[i] > min + graphy[k][i] || dist[i] == -1))
+			{
 				dist[i] = min + graphy[k][i];
+				path[i] = k; //æ›´æ–°è®°å½•å‰é©±é¡¶ç‚¹ï¼Œä¾›æœ€åå›æº¯æœ€çŸ­è·¯å¾„
+			}
 		}
 	}
 	min = dist[e_v];
